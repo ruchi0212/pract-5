@@ -1,4 +1,4 @@
-package page;
+
 import java.util.Scanner;
 public class PageReplacementAlgorithms {
     // Function to simulate FIFO page replacement
