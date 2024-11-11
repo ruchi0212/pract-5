@@ -7,8 +7,8 @@
  static int readCount = 0;
  static String message = "Hello";
  static Scanner SC = new Scanner(System.in);
- static class Reader implements Runnable { // Reader
- Thread public void run()
+ static class Reader implements Runnable { // ReaderThread 
+public void run()
  {
  try
  {
@@ -43,8 +43,8 @@
  }
  static class Writer implements Runnable
  {
- // Writer Thread
- public void run()
+ // WriterThread 
+public void run()
  {
  try
  {
