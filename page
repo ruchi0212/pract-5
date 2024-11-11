@@ -1,28 +1,30 @@
-
 import java.util.Scanner;
-public class PageReplacementAlgorithms {
+
+public class Main {
     // Function to simulate FIFO page replacement
     public static void fifo(int incomingStream[], int frames) {
-        int pageFaults = 0; 
-        int temp[] = new int[frames]; 
+        int pageFaults = 0;
+        int pageHits = 0;
+        int temp[] = new int[frames];
         for (int i = 0; i < frames; i++) {
-            temp[i] = -1; 
+            temp[i] = -1;
         }
         System.out.println("FIFO:");
         System.out.println("Incoming \t Frame 1 \t Frame 2 \t Frame 3");
         for (int i = 0; i < incomingStream.length; i++) {
-            int s = 0; 
+            int s = 0;
             for (int j = 0; j < frames; j++) {
                 if (incomingStream[i] == temp[j]) {
-                    s++; 
-                    pageFaults--; 
+                    s++;
+                    pageFaults--;
+                    pageHits++;  // Increment page hit
                 }
             }
-            pageFaults++; 
+            pageFaults++;
             if ((pageFaults <= frames) && (s == 0)) {
                 temp[i] = incomingStream[i];
             } else if (s == 0) {
-                temp[(pageFaults - 1) % frames] = incomingStream[i]; 
+                temp[(pageFaults - 1) % frames] = incomingStream[i];
             }
             System.out.print(incomingStream[i] + "\t\t\t");
             for (int j = 0; j < frames; j++) {
@@ -34,10 +36,13 @@ public class PageReplacementAlgorithms {
             System.out.println();
         }
         System.out.println("Total Page Faults: " + pageFaults);
+        System.out.println("Total Page Hits: " + pageHits);
     }
+
     // Function to simulate LRU page replacement
     public static void lru(int incomingStream[], int frames) {
         int pageFaults = 0;
+        int pageHits = 0;
         int temp[] = new int[frames];
         int lru[] = new int[frames];
         for (int i = 0; i < frames; i++) {
@@ -46,12 +51,13 @@ public class PageReplacementAlgorithms {
         System.out.println("LRU:");
         System.out.println("Incoming \t Frame 1 \t Frame 2 \t Frame 3");
         for (int i = 0; i < incomingStream.length; i++) {
-            int s = 0; 
+            int s = 0;
             for (int j = 0; j < frames; j++) {
                 if (incomingStream[i] == temp[j]) {
-                    s++; 
+                    s++;
                     pageFaults--;
-                    lru[j] = i; 
+                    pageHits++;  // Increment page hit
+                    lru[j] = i;
                 }
             }
             pageFaults++;
@@ -60,7 +66,6 @@ public class PageReplacementAlgorithms {
                 lru[i] = i;
             } else if (s == 0) {
                 int min = lru[0], pos = 0;
-
                 for (int j = 1; j < frames; j++) {
                     if (lru[j] < min) {
                         min = lru[j];
@@ -80,10 +85,13 @@ public class PageReplacementAlgorithms {
             System.out.println();
         }
         System.out.println("Total Page Faults: " + pageFaults);
+        System.out.println("Total Page Hits: " + pageHits);
     }
+
     // Function to simulate Optimal page replacement
     public static void optimal(int incomingStream[], int frames) {
         int pageFaults = 0;
+        int pageHits = 0;
         int temp[] = new int[frames];
         for (int i = 0; i < frames; i++) {
             temp[i] = -1;
@@ -91,11 +99,12 @@ public class PageReplacementAlgorithms {
         System.out.println("Optimal:");
         System.out.println("Incoming \t Frame 1 \t Frame 2 \t Frame 3");
         for (int i = 0; i < incomingStream.length; i++) {
-            int s = 0; 
+            int s = 0;
             for (int j = 0; j < frames; j++) {
                 if (incomingStream[i] == temp[j]) {
                     s++;
                     pageFaults--;
+                    pageHits++;  // Increment page hit
                     break;
                 }
             }
@@ -139,7 +148,9 @@ public class PageReplacementAlgorithms {
             System.out.println();
         }
         System.out.println("Total Page Faults: " + pageFaults);
+        System.out.println("Total Page Hits: " + pageHits);
     }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the number of pages in the incoming stream: ");
