@@ -40,7 +40,7 @@ public class Main {
     }
 
     // Function to simulate LRU page replacement
-    public static void lru(int incomingStream[], int frames) {
+    public static void lru(int incomingStream[],int lru[], int frames) {
         int pageFaults = 0;
         int pageHits = 0;
         int temp[] = new int[frames];
