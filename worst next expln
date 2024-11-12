@@ -1,0 +1,252 @@
+import java.util.Scanner;
+public class MemoryPlacement 
+{
+    static void worstFit(int blockSize[], int m, int processSize[], int n) 	
+//This defines the worstFit function. It takes four parameters:
+•	blockSize[]: an array of block sizes (memory partitions).
+•	m: the number of blocks.
+•	processSize[]: an array of process sizes.
+•	n: the number of processes
+
+    {
+        int allocation[] = new int[n];
+        int remblockSize[] = new int[n];
+// allocation[]: an array that keeps track of which block is allocated to which process. Each element is initially set to -1 (meaning no allocation).
+remblockSize[]: an array that tracks the remaining block sizes after allocation. Initially, it's set to -1.
+        for (int i = 0; i < n; i++) 
+        {
+            allocation[i] = -1;  // Initialize allocations as -1 (not allocated)
+            remblockSize[i] = -1; // Initialize remaining block sizes as -1
+        }
+        for (int i = 0; i < n; i++) 
+        {
+            int worstIdx = -1;
+//This loop iterates over each process (n processes). worstIdx will be used to keep track of the block with the largest remaining size that can accommodate the current process.
+            for (int j = 0; j < m; j++) 
+            {
+                if (blockSize[j] >= processSize[i]) 
+                {
+                    if (worstIdx == -1 || blockSize[worstIdx] < blockSize[j]) 
+                    {
+                        worstIdx = j;
+                    }
+                }
+            }
+For each process (i), we look at all available blocks (m blocks).
+•	If a block has enough space to accommodate the process (blockSize[j] >= processSize[i]), check if it's the largest block (blockSize[worstIdx] < blockSize[j]).
+•	If it is, update worstIdx to point to this block.
+
+            if (worstIdx != -1)
+            {
+                allocation[i] = worstIdx;
+                blockSize[worstIdx] -= processSize[i];
+                remblockSize[i] = blockSize[worstIdx];
+            }
+        }	
+//If a suitable block (worstIdx) is found, allocate the process to this block:
+•	allocation[i] = worstIdx: The process i is assigned to block worstIdx.
+•	blockSize[worstIdx] -= processSize[i]: Reduce the size of the block by the size of the allocated process.
+•	remblockSize[i] = blockSize[worstIdx]: Update the remaining size of the block.
+
+        displayResults(processSize, allocation, remblockSize, n);
+    }
+    static void nextFit(int blockSize[], int m, int processSize[], int n) 
+    {
+        int allocation[] = new int[n];
+        int remblockSize[] = new int[n];
+//•  allocation[]: an array to track which block is allocated to which process.
+•  remblockSize[]: an array to track the remaining size of each block after allocation.
+        for (int i = 0; i < n; i++) 
+        {
+            allocation[i] = -1;  // Initialize allocations as -1 (not allocated)
+            remblockSize[i] = -1; // Initialize remaining block sizes as -1
+        }
+        int j = 0; //The variable j keeps track of the current block where allocation should begin. It starts at 0.
+        for (int i = 0; i < n; i++) 
+        {
+            boolean allocated = false;
+            for (int count = 0; count < m; count++) 
+            {
+                if (blockSize[j] >= processSize[i]) 
+                {
+                    allocation[i] = j;
+                    blockSize[j] -= processSize[i];
+                    remblockSize[i] = blockSize[j];
+                    allocated = true;
+                    break;
+                }
+                j = (j + 1) % m; // Move to the next block (circularly)
+            }
+        }
+//For each process (i), we look for a block that can accommodate it, starting from block j. The for (int count = 0; count < m; count++) ensures that we check all blocks.
+•	If a block j can accommodate the process (blockSize[j] >= processSize[i]), allocate the process to this block:
+o	allocation[i] = j: Process i is allocated to block j.
+o	blockSize[j] -= processSize[i]: Reduce the size of block j.
+o	remblockSize[i] = blockSize[j]: Update the remaining size of block j.
+•	After each allocation, j is incremented using (j + 1) % m to move to the next block in a circular fashion. This ensures that once the last block is reached, the first block is considered again.
+
+        displayResults(processSize, allocation, remblockSize, n);
+    }
+    static void displayResults(int processSize[], int allocation[], int remblockSize[], int n) {
+        System.out.println("\nProcess No.\tProcess Size\tBlock No.\tRemaining Block Size");
+        for (int i = 0; i < n; i++) {
+            System.out.print(" " + (i + 1) + "\t\t" + processSize[i] + "\t\t");
+            if (allocation[i] != -1) {
+                System.out.print((allocation[i] + 1) + "\t\t" + remblockSize[i]);
+            } else {
+                System.out.print("Not Allocated\t-");
+            }
+            System.out.println();
+        }
+    }
+//This loop iterates over all processes (n processes) and prints:
+•	The process number (i + 1).
+•	The process size (processSize[i]).
+•	The allocated block (allocation[i] + 1, as block numbering starts from 1).
+•	The remaining size of the block (remblockSize[i]), or "Not Allocated" if the process was not allocated.
+
+    public static void main(String[] args) 
+    {
+        Scanner in = new Scanner(System.in);
+        System.out.print("Enter the number of memory partitions: ");
+        int m = in.nextInt();
+        int blockSize[] = new int[m];
+        for (int i = 0; i < m; i++) 
+        {
+            System.out.print("Enter size of block " + (i + 1) + ": ");
+            blockSize[i] = in.nextInt();
+        }
+        System.out.print("Enter the number of processes: ");
+        int n = in.nextInt();
+        int processSize[] = new int[n];
+        for (int i = 0; i < n; i++)
+        {
+            System.out.print("Enter size of process " + (i + 1) + ": ");
+            processSize[i] = in.nextInt();
+        }
+        System.out.print("Choose memory placement strategy (1 for Worst Fit, 2 for Next Fit): ");
+        int choice = in.nextInt();
+        int[] blockSizeCopy = blockSize.clone();
+        switch (choice) {
+            case 1:
+                System.out.println("\nUsing Worst Fit strategy:");
+                worstFit(blockSizeCopy, m, processSize, n);
+                break;
+            case 2:
+                System.out.println("\nUsing Next Fit strategy:");
+                nextFit(blockSizeCopy, m, processSize, n);
+                break;
+            default:
+                System.out.println("Invalid choice!");
+        }
+        in.close();//Finally, the Scanner is closed to release resources, and the program ends.
+    }
+}
+
+
+
+VIVA QUESTION
+### **1. What is the purpose of this program?**
+The purpose of this program is to simulate memory allocation strategies for processes in a computer system. It implements two memory placement strategies: **Worst Fit** and **Next Fit**, where processes are allocated to memory blocks (partitions) based on the selected strategy.
+
+### **2. What are the different memory allocation strategies implemented in this program?**
+The program implements two memory allocation strategies:
+- **Worst Fit**: Allocates the process to the block that has the largest remaining space that can fit the process.
+- **Next Fit**: Allocates the process to the next available block, continuing in a circular fashion, starting from where the last allocation was made.
+
+### **3. How does the **Worst Fit** strategy work?**
+The **Worst Fit** strategy works by finding the block that has the largest remaining space but is still large enough to accommodate the process. This minimizes the possibility of fragmentation by leaving the largest chunks of unused memory for future processes. The process is allocated to this largest block, and the block's size is reduced accordingly.
+
+### **4. How does the **Next Fit** strategy differ from **First Fit**?**
+The **Next Fit** strategy is similar to the **First Fit** strategy but with a key difference: Instead of always starting from the first block, it starts from the last allocated block and moves forward to find the next suitable block for allocation. Once the last block is reached, it wraps around to the first block, continuing the allocation in a circular manner.
+
+### **5. What happens if a process cannot be allocated to any block?**
+If a process cannot be allocated to any memory block (because no block is large enough), it is marked as **Not Allocated**, and no memory is reserved for it. The program will output "Not Allocated" for such processes in the results.
+
+### **6. Why do we create a copy of the block size array (`blockSizeCopy`) before calling the allocation functions?**
+The copy of the block size array (`blockSizeCopy`) is created to preserve the original block sizes before any memory allocation is done. Since the memory allocation strategies modify the `blockSize` array by reducing the size of the allocated block, making a copy ensures that each strategy operates on the original block sizes independently, without altering them for the next strategy.
+
+### **7. What does the `allocation[]` array represent in the code?**
+The `allocation[]` array keeps track of which block each process is allocated to. If `allocation[i]` is not `-1`, it indicates that the `i`-th process has been allocated to block `allocation[i]`. If `allocation[i]` is `-1`, the `i`-th process has not been allocated to any block.
+### **8. How does the program handle the allocation process for each strategy?**
+- In **Worst Fit**, for each process, the program checks all available blocks and selects the block with the largest remaining space that can accommodate the process. The block is then updated to reflect the remaining space after allocation.
+- In **Next Fit**, for each process, the program allocates the process to the next available block, starting from the block where the last allocation was made. If the block is too small, it moves to the next one in a circular fashion.
+
+### **9. How does the `displayResults()` function work?**
+The `displayResults()` function prints the allocation results for all processes. It shows:
+- The process number.
+- The process size.
+- The block number to which the process is allocated (if any).
+- The remaining size of the block after the allocation, or "Not Allocated" if no block was found for the process.
+
+### **10. What is the significance of using `-1` in the `allocation[]` and `remblockSize[]` arrays?**
+The value `-1` is used as an indicator that a process has not been allocated to any block. It initializes the `allocation[]` and `remblockSize[]` arrays to a default state where no processes are assigned to blocks and no remaining block sizes are set. If a process is allocated to a block, these arrays are updated accordingly.
+
+### **11. What does the `% m` operation in the `nextFit` function do?**
+The `% m` operation is used to implement circular allocation in the **Next Fit** strategy. After checking the last block, it wraps around and starts checking from the first block again. It ensures that the allocation starts from the first block after the last block is reached.
+
+### **12. What will happen if a user inputs an invalid choice for the memory allocation strategy?**
+If a user inputs an invalid choice (any number other than 1 or 2), the program will print `"Invalid choice!"` and will not perform any memory allocation, terminating the process without allocating any memory.
+
+### **13. How would you handle memory fragmentation in this program?**
+Memory fragmentation could be reduced or managed by considering a strategy like **Best Fit**, which attempts to fit processes into the smallest available block that is large enough, thereby minimizing wasted space. Alternatively, the program could implement memory compaction techniques, though that's beyond the scope of this basic implementation.
+### **14. What are the time complexities of the **Worst Fit** and **Next Fit** strategies?**
+- **Worst Fit**: The time complexity is \(O(n \times m)\), where `n` is the number of processes and `m` is the number of memory blocks. This is because, for each process, we have to check all `m` blocks to find the worst-fit block.
+- **Next Fit**: The time complexity is \(O(n + m)\), where `n` is the number of processes and `m` is the number of memory blocks. For each process, we check a few blocks, starting from the last allocated block and wrapping around. In the worst case, it checks all blocks once.
+
+### **15. Can this program be modified to implement **Best Fit** and **First Fit**?**
+Yes, this program can be modified to implement **Best Fit** and **First Fit** strategies.  
+- For **Best Fit**, we would look for the block that leaves the smallest leftover space after allocation, but still fits the process.
+- For **First Fit**, we would allocate the first block that is large enough to accommodate the process, without needing to check all blocks.
+
+### **16. Can this program handle dynamic memory allocation?**
+No, this program assumes that the number of memory blocks and processes are fixed. It doesn't handle situations where memory or processes are dynamically added or removed during execution. To support dynamic memory allocation, the program would need to be extended to allow for dynamic input and management of memory blocks during runtime.
+
+This program simulates how a computer allocates memory to processes using two strategies: Worst Fit and Next Fit.
+
+1. Worst Fit Strategy:
+Logic:
+•	Worst Fit allocates a process to the largest available memory block that can fit the process.
+•	The idea behind this is to leave the largest possible remaining space in the memory blocks, reducing the likelihood of creating very small "holes" or gaps that cannot be used by future processes.
+•	This strategy tries to keep the larger blocks free, expecting that they will be more useful for larger processes later on.
+Steps:
+1.	The system checks each memory block to see if it can accommodate the process.
+2.	From all blocks that can fit the process, the one with the largest remaining space after allocating the process is chosen.
+3.	The process is allocated to that block, and the block size is reduced by the size of the process.
+4.	The remaining space in that block is updated.
+Example:
+•	Suppose we have memory blocks of sizes: [100, 500, 200, 300].
+•	And a process that needs 250 units of memory.
+•	Worst Fit will allocate the process to the 500-unit block, as it's the largest block that can accommodate the process.
+•	After the allocation, the remaining size of the 500-unit block will be 500 - 250 = 250.
+Advantages:
+•	Minimizes the risk of having small unusable gaps in memory.
+Disadvantages:
+•	Can leave larger blocks partially empty, leading to inefficient use of memory.
+________________________________________
+2. Next Fit Strategy:
+Logic:
+•	Next Fit allocates a process to the next available block starting from the last allocated block.
+•	This method doesn’t scan all the blocks every time a new process comes; instead, it keeps track of the last allocated block and starts searching from there.
+•	If the last block is full or can't accommodate the process, it continues searching from the next block in a circular manner (i.e., if it reaches the end, it goes back to the first block).
+Steps:
+1.	The system keeps track of the last allocated block.
+2.	It starts checking the next block for allocation.
+3.	If a block can accommodate the process, the process is allocated there.
+4.	If the block is too small, the system moves to the next block (circularly).
+5.	Once a process is allocated, the system updates the block’s remaining size.
+Example:
+•	Suppose we have memory blocks of sizes: [100, 500, 200, 300].
+•	And a process that needs 250 units of memory.
+•	Next Fit will first attempt to allocate the process to the next block after the last allocated block (starting with the first block).
+•	If the current block can't accommodate the process, it moves to the next block.
+•	Once a block that fits the process is found, it allocates the process and updates the block.
+Advantages:
+•	Faster than strategies that check all blocks, as it doesn’t scan the entire list each time.
+Disadvantages:
+•	Can lead to fragmentation over time if blocks are not allocated efficiently.
+•	It may leave gaps in memory between allocated blocks that can’t be used for future processes.
+________________________________________
+Comparison:
+•	Worst Fit tries to keep the largest blocks available for future allocations, reducing fragmentation in the long run but possibly wasting memory in the short term.
+•	Next Fit simply allocates processes to memory blocks in a circular fashion, starting from where the last allocation was made, making it faster but possibly leading to fragmented memory usage.
