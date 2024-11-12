@@ -1,0 +1,111 @@
+import java.util.Scanner;
+public class MemoryPlacement 
+{
+    static void worstFit(int blockSize[], int m, int processSize[], int n) 
+    {
+        int allocation[] = new int[n];
+        int remblockSize[] = new int[n];
+        for (int i = 0; i < n; i++) 
+        {
+            allocation[i] = -1;  // Initialize allocations as -1 (not allocated)
+            remblockSize[i] = -1; // Initialize remaining block sizes as -1
+        }
+        for (int i = 0; i < n; i++) 
+        {
+            int worstIdx = -1;
+            for (int j = 0; j < m; j++) 
+            {
+                if (blockSize[j] >= processSize[i]) 
+                {
+                    if (worstIdx == -1 || blockSize[worstIdx] < blockSize[j]) 
+                    {
+                        worstIdx = j;
+                    }
+                }
+            }
+            if (worstIdx != -1)
+            {
+                allocation[i] = worstIdx;
+                blockSize[worstIdx] -= processSize[i];
+                remblockSize[i] = blockSize[worstIdx];
+            }
+        }
+        displayResults(processSize, allocation, remblockSize, n);
+    }
+    static void nextFit(int blockSize[], int m, int processSize[], int n) 
+    {
+        int allocation[] = new int[n];
+        int remblockSize[] = new int[n];
+        for (int i = 0; i < n; i++) 
+        {
+            allocation[i] = -1;  // Initialize allocations as -1 (not allocated)
+            remblockSize[i] = -1; // Initialize remaining block sizes as -1
+        }
+        int j = 0; 
+        for (int i = 0; i < n; i++) 
+        {
+            boolean allocated = false;
+            for (int count = 0; count < m; count++) 
+            {
+                if (blockSize[j] >= processSize[i]) 
+                {
+                    allocation[i] = j;
+                    blockSize[j] -= processSize[i];
+                    remblockSize[i] = blockSize[j];
+                    allocated = true;
+                    break;
+                }
+                j = (j + 1) % m; // Move to the next block (circularly)
+            }
+        }
+        displayResults(processSize, allocation, remblockSize, n);
+    }
+    static void displayResults(int processSize[], int allocation[], int remblockSize[], int n) {
+        System.out.println("\nProcess No.\tProcess Size\tBlock No.\tRemaining Block Size");
+        for (int i = 0; i < n; i++) {
+            System.out.print(" " + (i + 1) + "\t\t" + processSize[i] + "\t\t");
+            if (allocation[i] != -1) {
+                System.out.print((allocation[i] + 1) + "\t\t" + remblockSize[i]);
+            } else {
+                System.out.print("Not Allocated\t-");
+            }
+            System.out.println();
+        }
+    }
+    public static void main(String[] args) 
+    {
+        Scanner in = new Scanner(System.in);
+        System.out.print("Enter the number of memory partitions: ");
+        int m = in.nextInt();
+        int blockSize[] = new int[m];
+        for (int i = 0; i < m; i++) 
+        {
+            System.out.print("Enter size of block " + (i + 1) + ": ");
+            blockSize[i] = in.nextInt();
+        }
+        System.out.print("Enter the number of processes: ");
+        int n = in.nextInt();
+        int processSize[] = new int[n];
+        for (int i = 0; i < n; i++)
+        {
+            System.out.print("Enter size of process " + (i + 1) + ": ");
+            processSize[i] = in.nextInt();
+        }
+        System.out.print("Choose memory placement strategy (1 for Worst Fit, 2 for Next Fit): ");
+        int choice = in.nextInt();
+        int[] blockSizeCopy = blockSize.clone();
+        switch (choice) {
+            case 1:
+                System.out.println("\nUsing Worst Fit strategy:");
+                worstFit(blockSizeCopy, m, processSize, n);
+                break;
+            case 2:
+                System.out.println("\nUsing Next Fit strategy:");
+                nextFit(blockSizeCopy, m, processSize, n);
+                break;
+            default:
+                System.out.println("Invalid choice!");
+        }
+        in.close();
+    }
+}
